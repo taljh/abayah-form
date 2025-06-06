@@ -7,12 +7,12 @@ export const useFormStore = create((set, get) => ({
   formData: {
     brandName: '',
     storeLink: '',
-    productsCount: '',
-    monthlySales: '',
-    adsExperience: '',
-    marketingChallenge: '',
-    readyForMarketing: '',
-    whatsapp: '',
+    phoneNumber: '',
+    monthlyRevenue: '',
+    abayasCount: '',
+    marketingBudget: '',
+    agencyExperience: '',
+    startDate: ''
   },
   // Estado del formulario
   currentStep: 0,
@@ -53,12 +53,12 @@ export const useFormStore = create((set, get) => ({
     formData: {
       brandName: '',
       storeLink: '',
-      productsCount: '',
-      monthlySales: '',
-      adsExperience: '',
-      marketingChallenge: '',
-      readyForMarketing: '',
-      whatsapp: '',
+      phoneNumber: '',
+      monthlyRevenue: '',
+      abayasCount: '',
+      marketingBudget: '',
+      agencyExperience: '',
+      startDate: ''
     },
     currentStep: 0,
     isSubmitting: false,

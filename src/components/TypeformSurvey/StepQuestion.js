@@ -55,13 +55,12 @@ export function StepQuestion({ question, currentStep, totalQuestions }) {
 
   // Función para avanzar al siguiente paso
   const handleNext = async () => {
-    // Validación
+    // Only validate if the field is required
     if (question.isRequired && !formData[question.id]) {
       setError(question.errorMessage || 'هذا الحقل مطلوب');
       return;
     }
 
-    // Si es la última pregunta, enviamos el formulario
     if (isLastQuestion) {
       await handleSubmit();
     } else {
@@ -83,24 +82,28 @@ export function StepQuestion({ question, currentStep, totalQuestions }) {
       setLoading(true);
       setSubmitting(true);
 
-      // Enviar datos a la API
+      // Only include fields that have values
+      const cleanedFormData = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value && value.trim() !== '')
+      );
+
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(cleanedFormData),
       });
 
       if (!response.ok) {
-        throw new Error('حدث خطأ أثناء إرسال البيانات');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'حدث خطأ أثناء إرسال البيانات');
       }
 
-      // Mostrar pantalla de éxito
       setSubmitted(true);
     } catch (error) {
       console.error('Error submitting form:', error);
-      setError('حدث خطأ أثناء إرسال البيانات، يرجى المحاولة مرة أخرى');
+      setError(error.message || 'حدث خطأ أثناء إرسال البيانات');
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -152,13 +155,21 @@ export function StepQuestion({ question, currentStep, totalQuestions }) {
         );
       case 'radio':
         return (
-          <RadioGroup
-            name={question.id}
-            value={value}
-            onChange={handleChange}
-            options={question.options}
-            error={error}
-          />
+          <div className="flex justify-center gap-4 mt-4">
+            {question.options.map((option) => (
+              <Button
+                key={option.value}
+                variant={formData[question.id] === option.value ? 'solid' : 'outline'}
+                onClick={() => {
+                  setField(question.id, option.value);
+                  nextStep();
+                }}
+                className="px-6 py-2 text-lg"
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
         );
       default:
         return null;
@@ -167,24 +178,16 @@ export function StepQuestion({ question, currentStep, totalQuestions }) {
 
   return (
     <motion.div
-      className="w-full"
+      className="w-full flex flex-col items-center"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
     >
-      {/* Número y pregunta */}
-      <div className="question-container">
-        <motion.span 
-          className="text-sm text-neutral-500 mb-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          {`${currentStep + 1} / ${totalQuestions}`}
-        </motion.span>
+      {/* سؤال */}
+      <div className="question-container text-center mb-6">
         <motion.h2
-          className="text-2xl md:text-3xl font-bold mb-6"
+          className="text-2xl md:text-3xl font-bold"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -194,13 +197,13 @@ export function StepQuestion({ question, currentStep, totalQuestions }) {
       </div>
 
       {/* Campo de respuesta */}
-      <div className="answer-container">
+      <div className="answer-container w-full max-w-md">
         {renderQuestionField()}
       </div>
 
       {/* Botones de navegación */}
       <motion.div 
-        className="flex justify-between mt-8"
+        className="flex justify-between mt-8 w-full max-w-md"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}

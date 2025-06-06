@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
@@ -21,10 +24,23 @@ export async function POST(request) {
     // الحصول على بيانات النموذج
     const formData = await request.json();
 
-    // التحقق من البيانات الأساسية المطلوبة
-    if (!formData.brandName || !formData.whatsapp) {
+    // Log incoming data for debugging
+    console.log('Incoming form data:', formData);
+
+    // Clean incoming data by removing empty fields
+    const cleanedFormData = Object.fromEntries(
+      Object.entries(formData).filter(([key, value]) => value && value.trim() !== '')
+    );
+
+    // Only require brandName and phoneNumber as minimum fields
+    const minimumFields = ['brandName', 'phoneNumber'];
+    const missingFields = minimumFields.filter(field => !cleanedFormData[field]);
+
+    // Log missing fields for debugging
+    if (missingFields.length > 0) {
+      console.error('Missing minimum required fields:', missingFields);
       return NextResponse.json(
-        { success: false, message: 'يرجى تقديم جميع البيانات المطلوبة' },
+        { success: false, message: `يرجى تقديم البيانات الأساسية: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }
@@ -36,42 +52,49 @@ export async function POST(request) {
         
         <div style="margin-top: 20px;">
           <p style="font-weight: bold;">اسم البراند:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.brandName || 'غير محدد'}</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.brandName}</p>
         </div>
         
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">رابط المتجر/الإنستقرام:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.storeLink || 'غير محدد'}</p>
+          <p style="font-weight: bold;">رابط المتجر الإلكتروني:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.storeLink}</p>
         </div>
         
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">عدد المنتجات:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.productsCount || 'غير محدد'}</p>
+          <p style="font-weight: bold;">رقم الجوال:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.phoneNumber}</p>
         </div>
-        
+
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">المبيعات الشهرية:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.monthlySales || 'غير محدد'}</p>
+          <p style="font-weight: bold;">المبيعات الشهرية تتجاوز 5 آلاف ريال:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.monthlyRevenue === 'yes' ? 'نعم' : 'لا'}</p>
         </div>
-        
+
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">تجربة الإعلانات:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.adsExperience || 'غير محدد'}</p>
+          <p style="font-weight: bold;">عدد العبايات في المتجر:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${
+            {
+              'less_than_10': 'أقل من 10',
+              '10_to_20': '10 إلى 20',
+              '20_to_50': '20 إلى 50',
+              'more_than_50': 'أكثر من 50'
+            }[cleanedFormData.abayasCount] || cleanedFormData.abayasCount
+          }</p>
         </div>
-        
+
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">أكبر تحدي في التسويق:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.marketingChallenge || 'غير محدد'}</p>
+          <p style="font-weight: bold;">الميزانية الشهرية للتسويق:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.marketingBudget}</p>
         </div>
-        
+
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">مستعد للمشاركة في فرصة تسويقية بدون دفعات مسبقة:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.readyForMarketing || 'غير محدد'}</p>
+          <p style="font-weight: bold;">التجربة مع وكالات التسويق:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.agencyExperience}</p>
         </div>
-        
+
         <div style="margin-top: 15px;">
-          <p style="font-weight: bold;">رقم الواتساب للتواصل:</p>
-          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${formData.whatsapp || 'غير مقدم'}</p>
+          <p style="font-weight: bold;">موعد البدء المتوقع:</p>
+          <p style="background: #f9f9f9; padding: 10px; border-radius: 5px;">${cleanedFormData.startDate}</p>
         </div>
         
         <p style="margin-top: 30px; font-size: 13px; color: #777; border-top: 1px solid #f0f0f0; padding-top: 10px;">
@@ -84,7 +107,7 @@ export async function POST(request) {
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'تحدي العبايات <onboarding@resend.dev>',
       to: process.env.ADMIN_EMAIL || 't.aljh98@gmail.com',
-      subject: `تسجيل جديد: ${formData.brandName}`,
+      subject: `تسجيل جديد: ${cleanedFormData.brandName}`,
       html: htmlContent,
       rtl: true,
       tags: [{ name: 'category', value: 'brand_registration' }],
@@ -93,23 +116,6 @@ export async function POST(request) {
     if (error) {
       console.error('Resend API error:', error);
       throw new Error('Failed to send email');
-    }
-
-    // إرسال رسالة تأكيد للمستخدم إذا قدم بريدًا إلكترونيًا
-    if (formData.email) {
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'تحدي العبايات <onboarding@resend.dev>',
-        to: formData.email,
-        subject: 'شكراً لتسجيلك في تحدي العبايات',
-        html: `
-          <div style="direction: rtl; text-align: right; font-family: Arial, sans-serif;">
-            <h2>شكراً ${formData.brandName}!</h2>
-            <p>تم استلام تسجيلك في تحدي العبايات بنجاح.</p>
-            <p>سنقوم بالتواصل معك قريباً على رقم الواتساب المقدم.</p>
-          </div>
-        `,
-        rtl: true,
-      });
     }
 
     return NextResponse.json(
