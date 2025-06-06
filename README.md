@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# استبيان براندات العبايات - Landing Page
 
-## Getting Started
+مشروع صفحة هبوط (Landing Page) مصمم لجمع بيانات أصحاب براندات العبايات المهتمين بفرص تسويقية، بواسطة Next.js وTailwind CSS.
 
-First, run the development server:
+## المميزات
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- صفحة واحدة فقط (Landing Page) بتصميم عصري وأنيق
+- دعم كامل للغة العربية واتجاه RTL
+- استخدام خط Tajawal العربي
+- نموذج استبيان احترافي مع التحقق من الإدخالات
+- تأثيرات حركية باستخدام Framer Motion
+- إرسال البيانات عبر البريد الإلكتروني باستخدام Resend API
+- متجاوب تماماً مع جميع أحجام الشاشات
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## متطلبات التشغيل
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Node.js 18.0.0 أو أحدث
+- حساب على [Resend](https://resend.com) للحصول على API key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## خطوات التثبيت والتشغيل
 
-## Learn More
+1. قم بتثبيت الاعتماديات:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. قم بإنشاء ملف `.env.local` في مجلد المشروع الرئيسي وأضف مفتاح API الخاص بك:
+   ```
+   RESEND_API_KEY=مفتاح_API_الخاص_بك_هنا
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. قم بتشغيل خادم التطوير:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. افتح [http://localhost:3000](http://localhost:3000) في متصفحك لمشاهدة الصفحة.
 
-## Deploy on Vercel
+## النشر على Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+الطريقة الأسهل لنشر تطبيق Next.js هي استخدام منصة [Vercel](https://vercel.com/new).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. قم بإنشاء حساب على Vercel إذا لم يكن لديك حساب بالفعل
+2. قم برفع المشروع إلى GitHub
+3. قم بإضافة المشروع إلى Vercel
+4. قم بإضافة متغير البيئة `RESEND_API_KEY` في إعدادات المشروع
+
+## تخصيص المشروع
+
+- يمكنك تعديل النصوص والألوان في ملف `src/app/page.js`
+- يمكنك تعديل نموذج الاستبيان في ملف `src/components/BrandForm.js`
+- يمكنك تعديل إعدادات البريد الإلكتروني في ملف `src/app/api/send-email/route.js`
+
+## الملاحظات
+
+- تأكد من استبدال `RESEND_API_KEY` بمفتاح API الحقيقي الخاص بك
+- في حالة الإنتاج، يفضل استخدام عنوان بريد إلكتروني مخصص بدلاً من العنوان الافتراضي `onboarding@resend.dev`
